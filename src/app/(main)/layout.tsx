@@ -30,9 +30,7 @@ export default async function Layout({
             {children}
           </div>
           {/* Right Sidebar */}
-          <aside className="hidden lg:block w-80 overflow-y-auto">
-            <RightSidebar />
-          </aside>
+          <RightSidebar />
         </div>
       </SessionProvider>
     );

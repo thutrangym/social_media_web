@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -18,8 +18,10 @@ model User {
   googleId     String?   @unique
   avatarUrl    String?
   bio          String?
-  sessions     Session[]
+  following    Follow[]  @relation("Following")
+  followers    Follow[]  @relation("Followers")
   posts        Post[]
+  sessions     Session[]
 
   @@map("users")
 }
@@ -33,11 +35,22 @@ model Session {
   @@map("sessions")
 }
 
+model Follow {
+  followerId  String
+  followingId String
+  follower    User   @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User   @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
 model Post {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   content   String
-  userId  String
+  userId    String
+  createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime  @default(now())
+
   @@map("posts")
 }

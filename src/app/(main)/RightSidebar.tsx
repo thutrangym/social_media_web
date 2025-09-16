@@ -1,19 +1,11 @@
-import Image from "next/image";
-import avatar_placeholder from "@/assets/avatar_placeholder.jpg";
-import SearchField from "@/components/SearchFiled";
 import TrendsSidebar from "@/components/TrendsSidebar";
 
 export default function RightSidebar() {
   return (
     <aside className="p-4 space-y-4">
-      {/* Search Bar */}
-      <SearchField />
-
+      
       {/* Trending Topics */}
       <TrendsSidebar/>
-
-      
-
       {/* Footer Links */}
       <div className="text-xs text-gray-500 flex flex-wrap gap-2">
         <span>Terms of Service</span>
