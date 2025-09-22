@@ -1,8 +1,8 @@
-import { cache } from "react";
+import { validateRequest } from "@/lib/server-auth";
+import { cache, useRef, useState } from "react";
 import prisma from "@/lib/prisma";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { validateRequest } from "@/lib/server-auth";
 import { FollowerInfo, getUserDataSelect, UserData } from "@/lib/types";
 
 import TrendsSidebar from "@/components/TrendsSidebar";
@@ -14,6 +14,9 @@ import FollowButton from "@/components/FollowButton";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
 import UserPosts from "./UserPosts";
+import Linkify from "@/components/Linkify";
+import EditProfileButton from "./EditProfileButton";
+import { StaticImageData } from "next/image";
 
 interface PageProps {
   params: { username: string };
@@ -91,43 +94,47 @@ async function UserProfile({ user, loggedInUserId }: UserProfileProps) {
   };
 
   return (
-    <div className="h-fit w-full flex items-center gap-2.5 rounded-2xl bg-card p-5 shadow-sm">
-      <UserAvatar
-        avatarUrl={user.avatarUrl}
-        size={100}
-        className="rounded-full"
-      />
-      <div className="flex flex-wrap gap-3 sm:flex-nowrap">
-        <div className="me-auto space-y-3">
-          <div className="border p-2.5">
-            <h1 className="text-3xl font-bold">{user.displayName}</h1>
-            <div className="text-muted-foreground">@{user.username}</div>
-          </div>
-          <div>Member since {formatDate(user.createdAt, "MMM d, yyyy")}</div>
-          <div className="flex items-center gap-3">
-            <span>
-              Posts:{" "}
-              <span className="font-semibold">
-                {formatNumber(user._count.posts)}
+    <div className="h-fit w-full rounded-2xl bg-card p-5 shadow-sm space-y-4">
+      {/* Phần header: avatar + thông tin + nút */}
+      <div className="flex items-center gap-4">
+        <UserAvatar
+          avatarUrl={user.avatarUrl}
+          size={100}
+          className="rounded-full"
+        />
+        <div className="flex flex-wrap gap-3 sm:flex-nowrap w-full">
+          <div className="me-auto space-y-3">
+            <div>
+              <h1 className="text-3xl font-bold">{user.displayName}</h1>
+              <div className="text-muted-foreground">@{user.username}</div>
+            </div>
+            <div>Member since {formatDate(user.createdAt, "MMM d, yyyy")}</div>
+            <div className="flex items-center gap-3">
+              <span>
+                Posts:{" "}
+                <span className="font-semibold">
+                  {formatNumber(user._count.posts)}
+                </span>
               </span>
-            </span>
-            <FollowerCount userId={user.id} initialState={followerInfo} />
+              <FollowerCount userId={user.id} initialState={followerInfo} />
+            </div>
           </div>
-        </div>
 
-        {user.id === loggedInUserId ? (
-          <Button>Edit profile</Button>
-        ) : (
-          <FollowButton userId={user.id} initialState={followerInfo} />
-        )}
+          {user.id === loggedInUserId ? (
+            <EditProfileButton user={user} />
+          ) : (
+            <FollowButton userId={user.id} initialState={followerInfo} />
+          )}
+        </div>
       </div>
 
+      {/* Phần bio nằm dưới */}
       {user.bio && (
-        <>
-        <div className="overflow-hidden whitespace-pre-line break-words">
-          {user.bio}  
-        </div>
-        </>
+        <Linkify>
+          <div className="overflow-hidden whitespace-pre-line break-words">
+            {user.bio}
+          </div>
+        </Linkify>
       )}
     </div>
   );

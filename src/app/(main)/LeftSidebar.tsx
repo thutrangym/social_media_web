@@ -1,7 +1,6 @@
 import {
   Home,
   Hash,
-  Bell,
   Mail,
   Bookmark,
   List,
@@ -12,19 +11,22 @@ import Image from "next/image";
 import logo from "@/assets/logo.jpg";
 import Link from "next/link";
 import UserButton from "@/components/UserButton";
+import { validateRequest } from "@/lib/server-auth";
+import prisma from "@/lib/prisma";
+import NotificationsButton from "./NotificationsButton";
 
-const menu = [
-  { icon: <Home />, label: "Home" },
-  { icon: <Hash />, label: "Explore" },
-  { icon: <Bell />, label: "Notifications" },
-  { icon: <Mail />, label: "Messages" },
-  { icon: <Bookmark />, label: "Bookmarks" },
-  { icon: <List />, label: "Lists" },
-  { icon: <User />, label: "Profile" },
-  { icon: <MoreHorizontal />, label: "More" },
-];
+export default async function LeftSidebar({}) {
+  const { user } = await validateRequest();
 
-export default function LeftSidebar() {
+  if (!user) return null;
+
+  const unreadNotificationCount = await prisma.notification.count({
+    where: {
+      recipientId: user.id,
+      read: false,
+    },
+  });
+
   return (
     <aside className="p-4 flex flex-col justify-between h-full">
       {/* Top Section */}
@@ -36,16 +38,65 @@ export default function LeftSidebar() {
 
         {/* Menu Items */}
         <nav className="space-y-2">
-          {menu.map((item, i) => (
-            <Link
-              key={i}
-              href={`/${item.label.toLowerCase()}`}
-              className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
-            >
-              <div className="h-6 w-6">{item.icon}</div>
-              <span className="hidden md:inline">{item.label}</span>
-            </Link>
-          ))}
+          <Link
+            href="/"
+            className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
+          >
+            <Home className="h-6 w-6" />
+            <span className="hidden md:inline">Home</span>
+          </Link>
+
+          <Link
+            href="/explore"
+            className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
+          >
+            <Hash className="h-6 w-6" />
+            <span className="hidden md:inline">Explore</span>
+          </Link>
+
+          <NotificationsButton
+            initialState={{ unreadCount: unreadNotificationCount }}
+          />
+
+          <Link
+            href="/messages"
+            className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
+          >
+            <Mail className="h-6 w-6" />
+            <span className="hidden md:inline">Messages</span>
+          </Link>
+
+          <Link
+            href="/bookmarks"
+            className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
+          >
+            <Bookmark className="h-6 w-6" />
+            <span className="hidden md:inline">Bookmarks</span>
+          </Link>
+
+          <Link
+            href="/lists"
+            className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
+          >
+            <List className="h-6 w-6" />
+            <span className="hidden md:inline">Lists</span>
+          </Link>
+
+          <Link
+            href={`/users/${user?.username}`}
+            className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
+          >
+            <User className="h-6 w-6" />
+            <span className="hidden md:inline">Profile</span>
+          </Link>
+
+          <Link
+            href="/more"
+            className="flex items-center space-x-3 text-lg font-medium hover:bg-gray-200 px-4 py-2 rounded-full w-fit"
+          >
+            <MoreHorizontal className="h-6 w-6" />
+            <span className="hidden md:inline">More</span>
+          </Link>
         </nav>
 
         {/* Post Button */}
@@ -59,4 +110,3 @@ export default function LeftSidebar() {
     </aside>
   );
 }
-

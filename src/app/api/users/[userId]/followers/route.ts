@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import { validateRequest } from "@/lib/server-auth";
 import { FollowerInfo } from "@/lib/types";
 
-
 export async function GET(
   req: Request,
   { params: { userId } }: { params: { userId: string } },
@@ -60,19 +59,28 @@ export async function POST(
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await prisma.follow.upsert({
-      where: {
-        followerId_followingId: {
+    await prisma.$transaction([
+      prisma.follow.upsert({
+        where: {
+          followerId_followingId: {
+            followerId: loggedInUser.id,
+            followingId: userId,
+          },
+        },
+        create: {
           followerId: loggedInUser.id,
           followingId: userId,
         },
-      },
-      create: {
-        followerId: loggedInUser.id,
-        followingId: userId,
-      },
-      update: {},
-    });
+        update: {},
+      }),
+      prisma.notification.create({
+        data: {
+          issuerId: loggedInUser.id,
+          recipientId: userId,
+          type: "FOLLOW",
+        },
+      }),
+    ]);
 
     return new Response();
   } catch (error) {
@@ -92,22 +100,21 @@ export async function DELETE(
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const result = await prisma.follow.deleteMany({
-      where: {
-        followerId: loggedInUser.id,
-        followingId: userId,
-      },
-    });
-    console.log('Unfollow deleted rows:', result.count, 'followerId:', loggedInUser.id, 'followingId:', userId);
-    //   prisma.notification.deleteMany({
-    //     where: {
-    //       issuerId: loggedInUser.id,
-    //       recipientId: userId,
-    //       type: "FOLLOW",
-    //     },
-    //   }),
-   
-
+    await prisma.$transaction([
+      prisma.follow.deleteMany({
+        where: {
+          followerId: loggedInUser.id,
+          followingId: userId,
+        },
+      }),
+      prisma.notification.deleteMany({
+        where: {
+          issuerId: loggedInUser.id,
+          recipientId: userId,
+          type: "FOLLOW",
+        },
+      }),
+    ]);
     return new Response();
   } catch (error) {
     console.error(error);

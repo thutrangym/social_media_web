@@ -1,6 +1,6 @@
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { Google } from "arctic";
-import { Lucia, Session, User } from "lucia";
+import { Lucia } from "lucia";
 // import { cookies } from "next/headers"; // Sử dụng trong Server Component
 // import { cache } from "react";
 import prisma from "./lib/prisma"; // Prisma client của bạn
@@ -51,7 +51,3 @@ export const google = new Google(
   process.env.GOOGLE_CLIENT_SECRET!,
   `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/callback/google`,
 );
-
-
-
-
