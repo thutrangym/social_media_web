@@ -4,9 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
-
+@import "~stream-chat-react/dist/css/v2/index.css";
 
 @layer base {
   :root {
@@ -64,4 +62,3 @@
     --chart-5: 340 75% 55%;
   }
 }
-

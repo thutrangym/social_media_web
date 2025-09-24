@@ -98,7 +98,7 @@ export async function POST(
         : []),
     ]);
 
-    return new Response();
+    return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
@@ -146,7 +146,7 @@ export async function DELETE(
       }),
     ]);
 
-    return new Response();
+    return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Error in DELETE /api/posts/[postId]/likes", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
