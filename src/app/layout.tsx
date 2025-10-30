@@ -26,11 +26,14 @@ export const metadata: Metadata = {
   description: "The social media web for powernerds",
 };
 
+// BỎ `async` VÌ KHÔNG CÒN `await`
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // XÓA TẤT CẢ LOGIC CHUYỂN HƯỚNG TẠI ĐÂY
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body

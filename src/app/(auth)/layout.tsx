@@ -1,6 +1,5 @@
 import { validateRequest } from "@/lib/server-auth";
 import { redirect } from "next/navigation";
-
 export default async function Layout({
   children,
 }: {

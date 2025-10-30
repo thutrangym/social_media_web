@@ -36,7 +36,7 @@ model Session {
   userId    String
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@index([userId])
   @@map("sessions")
 }
 
@@ -47,6 +47,8 @@ model Follow {
   following   User   @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+  @@index([followingId])
+  @@index([followerId])
   @@map("follows")
 }
 
@@ -61,7 +63,7 @@ model Post {
   linkedNotifications Notification[]
   attachments         Media[]
   user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@index([userId])
   @@map("posts")
 }
 
@@ -72,7 +74,7 @@ model Media {
   url       String
   createdAt DateTime  @default(now())
   post      Post?     @relation(fields: [postId], references: [id])
-
+  @@index([postId])
   @@map("post_media")
 }
 
@@ -84,7 +86,8 @@ model Comment {
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@index([postId]) 
+  @@index([userId])
   @@map("comments")
 }
 
@@ -107,6 +110,7 @@ model Bookmark {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+  @@index([userId])
   @@map("bookmarks")
 }
 
@@ -121,7 +125,9 @@ model Notification {
   issuer      User             @relation("Issuer", fields: [issuerId], references: [id], onDelete: Cascade)
   post        Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
   recipient   User             @relation("Recipient", fields: [recipientId], references: [id], onDelete: Cascade)
-
+  @@index([recipientId, read])
+  @@index([issuerId])
+  @@index([postId])
   @@map("notifications")
 }
 
