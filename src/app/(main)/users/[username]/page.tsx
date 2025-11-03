@@ -1,4 +1,4 @@
-import { validateRequest } from "@/lib/server-auth";
+import { validateRequest, CustomUser } from "@/lib/server-auth";
 import { cache } from "react";
 import prisma from "@/lib/prisma";
 import { Metadata } from "next";
@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { FollowerInfo, getUserDataSelect, UserData } from "@/lib/types";
 
 import UserAvatar from "@/components/UserAvatar";
+import AdminUserControlsWrapper from "@/components/AdminUserControlsWrapper";
 import { formatDate } from "date-fns";
 import { formatNumber } from "@/lib/utils";
 import FollowerCount from "@/components/FollowerCount";
@@ -66,7 +67,7 @@ export default async function Page({ params: { username } }: PageProps) {
 
   return (
     <main className="flex w-full min-w-0 flex-col gap-5">
-      <UserProfile user={user} loggedInUserId={loggedInUser.id} />
+      <UserProfile user={user} loggedInUser={loggedInUser} />
       <div className="rounded-2xl bg-card p-5 shadow-sm">
         <h2 className="text-center text-2xl font-bold">
           {user.displayName}&apos;s posts
@@ -79,15 +80,15 @@ export default async function Page({ params: { username } }: PageProps) {
 
 interface UserProfileProps {
   user: UserData;
-  loggedInUserId: string;
+  loggedInUser: CustomUser;
 }
 
 // Đây là một Server Component, giúp render HTML tĩnh và tối ưu performance
-async function UserProfile({ user, loggedInUserId }: UserProfileProps) {
+async function UserProfile({ user, loggedInUser }: UserProfileProps) {
   const followerInfo: FollowerInfo = {
     followers: user._count.followers,
     isFollowedByUser: user.followers.some(
-      ({ follower }) => follower.id === loggedInUserId,
+      ({ follower }) => follower.id === loggedInUser.id,
     ),
   };
 
@@ -120,11 +121,16 @@ async function UserProfile({ user, loggedInUserId }: UserProfileProps) {
             </div>
           </div>
 
-          {user.id === loggedInUserId ? (
-            <EditProfileButton user={user} />
-          ) : (
-            <FollowButton userId={user.id} initialState={followerInfo} />
-          )}
+          <div className="flex flex-col gap-3">
+            {user.id === loggedInUser.id ? (
+              <EditProfileButton user={user} />
+            ) : (
+              <FollowButton userId={user.id} initialState={followerInfo} />
+            )}
+            {loggedInUser.role === "ADMIN" && loggedInUser.id !== user.id && (
+              <AdminUserControlsWrapper targetUserId={user.id} />
+            )}
+          </div>
         </div>
       </div>
 

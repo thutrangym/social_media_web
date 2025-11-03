@@ -12,7 +12,11 @@ export async function deletePost(id: string) {
   });
 
   if (!post) throw new Error("Post not found");
-  if (post.userId !== user.id) throw new Error("Unauthorized");
+
+  const isPostOwner = post.userId === user.id;
+  const isAdmin = user.role === "ADMIN";
+
+  if (!isPostOwner && !isAdmin) throw new Error("Unauthorized");
   const deletedPost = await prisma.post.delete({
     where: { id },
     include: getPostDataInclude(user.id),

@@ -1,15 +1,10 @@
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { Google } from "arctic";
 import { Lucia } from "lucia";
-// import { cookies } from "next/headers"; // Sử dụng trong Server Component
-// import { cache } from "react";
-import prisma from "./lib/prisma"; // Prisma client của bạn
-//import { NextRequest } from 'next/server'; // Import kiểu NextRequest
+import prisma from "./lib/prisma";
 
-// Tạo adapter cho Prisma
 const adapter = new PrismaAdapter(prisma.session, prisma.user);
 
-// Khởi tạo đối tượng Lucia với các cấu hình session
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
     expires: false,
@@ -24,6 +19,7 @@ export const lucia = new Lucia(adapter, {
       displayName: databaseUserAttributes.displayName,
       avatarUrl: databaseUserAttributes.avatarUrl,
       googleId: databaseUserAttributes.googleId,
+      role: databaseUserAttributes.role,
     };
   },
 });
@@ -37,12 +33,13 @@ declare module "lucia" {
 }
 
 // Interface cho thuộc tính người dùng trong cơ sở dữ liệu
-interface DatabaseUserAttributes {
+export interface DatabaseUserAttributes {
   id: string;
   username: string;
   displayName: string;
   avatarUrl: string | null;
   googleId: string | null;
+  role: "USER" | "ADMIN";
 }
 
 // Khởi tạo Google Auth

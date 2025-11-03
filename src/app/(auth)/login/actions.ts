@@ -7,6 +7,7 @@ import { verify } from "@node-rs/argon2";
 import { lucia } from "@/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function login(
   credentials: LoginValues,
@@ -20,6 +21,7 @@ export async function login(
           mode: "insensitive",
         },
       },
+      select: { id: true, passwordHash: true, role: true },
     });
 
     if (!existingUser || !existingUser.passwordHash) {
@@ -37,16 +39,23 @@ export async function login(
       return { error: "Invalid username or password" };
     }
 
-    const session = await lucia.createSession(existingUser.id, {});
+    const session = await lucia.createSession(existingUser.id, {
+      // Truyền trực tiếp vai trò để nó được lưu vào bảng Session
+      role: existingUser.role, // <-- Giữ nguyên
+    });
+
+    console.log(
+      `[LOGIN SUCCESS] Creating session for user ${existingUser.id} with role: ${existingUser.role}`,
+    );
+
     const setCookie = lucia.createSessionCookie(session.id);
     (await cookies()).set(
       setCookie.name,
       setCookie.value,
       setCookie.attributes,
     );
-
+    revalidatePath("/");
     return redirect("/");
-
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(error);

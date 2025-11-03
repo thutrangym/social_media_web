@@ -7,6 +7,10 @@ datasource db {
   provider = "postgresql"
   url      = env("PRISMA_DATABASE_URL")
 }
+enum Role {
+  USER   
+  ADMIN  
+}
 
 model User {
   id                    String         @id
@@ -18,6 +22,7 @@ model User {
   googleId              String?        @unique
   avatarUrl             String?
   bio                   String?
+  role          Role      @default(USER) 
   bookmarks             Bookmark[]
   comments              Comment[]
   following             Follow[]       @relation("Following")
@@ -27,6 +32,7 @@ model User {
   receivedNotifications Notification[] @relation("Recipient")
   posts                 Post[]
   sessions              Session[]
+  keys                 AuthKey[]
 
   @@map("users")
 }
@@ -36,8 +42,19 @@ model Session {
   userId    String
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role 		Role @default(USER)
   @@index([userId])
   @@map("sessions")
+}
+
+model AuthKey {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String   @unique
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("auth_keys")
 }
 
 model Follow {

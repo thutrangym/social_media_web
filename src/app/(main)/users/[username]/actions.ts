@@ -1,13 +1,43 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { validateRequest } from "@/lib/server-auth";
+import { validateRequest, assertAdmin } from "@/lib/server-auth";
 import streamServerClient from "@/lib/stream";
 import { getUserDataSelect } from "@/lib/types";
 import {
   updateUserProfileSchema,
   UpdateUserProfileValues,
 } from "@/lib/validation";
+
+export async function deleteUserByAdmin(userIdToDelete: string) {
+  const adminUser = await assertAdmin();
+  if (adminUser.id === userIdToDelete) {
+    throw new Error("Admin users cannot delete their own accounts.");
+  }
+
+  try {
+    await prisma.authKey.deleteMany({
+      where: { userId: userIdToDelete },
+    });
+    await prisma.session.deleteMany({
+      where: { userId: userIdToDelete },
+    });
+    await prisma.user.delete({
+      where: { id: userIdToDelete },
+    });
+    console.log(
+      `User ${userIdToDelete} deleted by Admin ${adminUser.username}.`,
+    );
+
+    return {
+      success: true,
+      message: `Delete user's UserID: ${userIdToDelete}.`,
+    };
+  } catch (error) {
+    console.error(`Error deleting user ${userIdToDelete}:`, error);
+    throw new Error("Failed to delete user.");
+  }
+}
 
 export async function updateUserProfile(values: UpdateUserProfileValues) {
   const validatedValues = updateUserProfileSchema.parse(values);
