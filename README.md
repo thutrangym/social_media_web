@@ -84,3 +84,168 @@ Dự án được xây dựng trên một **kiến trúc Full-stack Hợp nhất
 * [cite_start]**Ứng dụng Di động:** Phát triển ứng dụng Native cho iOS/Android bằng **React Native**[cite: 687, 688].
 * [cite_start]**Thông báo Real-time:** Chuyển hệ thống thông báo sang cơ chế real-time bằng **WebSockets** (ví dụ: Pusher)[cite: 689, 690].
 
+## Cấu trúc thư mục dự án
+```
+src/
+┣ app/                                # Next.js App Router – chứa toàn bộ route của app
+┃ ┣ (auth)/                           # Nhóm route liên quan đến authentication
+┃ ┃ ┣ login/                          # Trang đăng nhập
+┃ ┃ ┃ ┣ google/
+┃ ┃ ┃ ┃ ┣ GoogleSignInButton.tsx      # Nút đăng nhập Google
+┃ ┃ ┃ ┃ ┗ route.ts                    # API route xử lý OAuth Google
+┃ ┃ ┃ ┣ actions.ts                    # Server actions cho login
+┃ ┃ ┃ ┣ LoginForm.tsx                 # Form đăng nhập
+┃ ┃ ┃ ┗ page.tsx                      # Trang /login
+┃ ┃ ┣ signup/
+┃ ┃ ┃ ┣ actions.ts                    # Server actions đăng ký
+┃ ┃ ┃ ┣ page.tsx                      # Trang /signup
+┃ ┃ ┃ ┗ SignUpForm.tsx                # Form đăng ký
+┃ ┃ ┣ actions.ts                      # Server actions chung cho (auth)
+┃ ┃ ┗ layout.tsx                      # Layout chung cho login/signup
+┃ ┣ (main)/                           # Các route chính sau khi user đăng nhập
+┃ ┃ ┣ bookmarks/
+┃ ┃ ┃ ┣ Bookmarks.tsx                 # Component hiển thị bookmark
+┃ ┃ ┃ ┗ page.tsx                      # Trang /bookmarks
+┃ ┃ ┣ hashtag/
+┃ ┃ ┃ ┗ [tag]/page.tsx                # Trang hashtag động /hashtag/[tag]
+┃ ┃ ┣ messages/
+┃ ┃ ┃ ┣ Chat.tsx                      # UI khung chat chính
+┃ ┃ ┃ ┣ ChatChannel.tsx               # Kênh chat cụ thể
+┃ ┃ ┃ ┣ ChatSidebar.tsx               # Sidebar danh sách chat
+┃ ┃ ┃ ┣ NewChatDialog.tsx             # Dialog mở chat mới
+┃ ┃ ┃ ┣ page.tsx                      # Trang /messages
+┃ ┃ ┃ ┗ useInitializeChatClient.ts     # Hook khởi tạo client chat (Stream)
+┃ ┃ ┣ notifications/
+┃ ┃ ┃ ┣ Notification.tsx              # Component hiển thị 1 thông báo
+┃ ┃ ┃ ┣ Notifications.tsx             # Danh sách thông báo
+┃ ┃ ┃ ┗ page.tsx                      # Trang /notifications
+┃ ┃ ┣ posts/
+┃ ┃ ┃ ┗ [postId]/page.tsx             # Trang chi tiết bài post
+┃ ┃ ┣ search/
+┃ ┃ ┃ ┣ page.tsx                      # Trang /search
+┃ ┃ ┃ ┗ SearchResult.tsx              # Component kết quả tìm kiếm
+┃ ┃ ┣ users/
+┃ ┃ ┃ ┗ [username]/                   # Trang profile động
+┃ ┃ ┃   ┣ actions.ts                  # Server actions cho user profile
+┃ ┃ ┃   ┣ EditProfileButton.tsx       # Nút mở dialog edit profile
+┃ ┃ ┃   ┣ EditProfileDialog.tsx       # Dialog chỉnh sửa profile
+┃ ┃ ┃   ┣ mutations.ts                # Các mutation dùng react-query
+┃ ┃ ┃   ┣ page.tsx                    # Trang profile
+┃ ┃ ┃   ┗ UserPosts.tsx               # Danh sách bài viết của user
+┃ ┃ ┣ FollowingFeed.tsx               # Feed cho người dùng theo dõi
+┃ ┃ ┣ ForYouFeed.tsx                  # Feed gợi ý
+┃ ┃ ┣ layout.tsx                      # Layout chính cho (main)
+┃ ┃ ┣ LeftSidebar.tsx                 # Sidebar trái
+┃ ┃ ┣ loading.tsx                     # Trang loading cho (main)
+┃ ┃ ┣ MessagesButton.tsx              # Nút điều hướng đến messages
+┃ ┃ ┣ not-found.tsx                   # Trang 404
+┃ ┃ ┣ NotificationsButton.tsx         # Nút mở thông báo
+┃ ┃ ┣ page.tsx                        # Trang homepage sau khi login
+┃ ┃ ┣ RightSidebar.tsx                # Sidebar phải
+┃ ┃ ┗ SessionProvider.tsx             # Provider Auth session (NextAuth)
+┃ ┣ api/                              # API Routes (serverless functions)
+┃ ┃ ┣ admin/                          # API liên quan đến admin
+┃ ┃ ┃ ┣ delete-user/route.ts          # Xóa người dùng
+┃ ┃ ┃ ┗ promote/route.ts              # Nâng quyền user
+┃ ┃ ┣ auth/
+┃ ┃ ┃ ┗ callback/google/route.ts      # Callback OAuth Google
+┃ ┃ ┣ clear-uploads/route.ts          # Xóa file upload cũ (cron job)
+┃ ┃ ┣ get-token/route.ts              # Lấy token server → client
+┃ ┃ ┣ messages/unread-count/route.ts  # API đếm tin nhắn chưa đọc
+┃ ┃ ┣ notifications/
+┃ ┃ ┃ ┣ mark-as-read/route.ts         # Đánh dấu thông báo đã đọc
+┃ ┃ ┃ ┣ unread-count/route.ts         # Số thông báo chưa đọc
+┃ ┃ ┃ ┗ route.ts                      # Lấy danh sách thông báo
+┃ ┃ ┣ posts/                          # API liên quan đến bài post
+┃ ┃ ┃ ┣ bookmarked/route.ts           # Lấy danh sách post bookmarked
+┃ ┃ ┃ ┣ following/route.ts            # Feed từ người follow
+┃ ┃ ┃ ┣ for-you/route.ts              # Feed đề xuất
+┃ ┃ ┃ ┗ [postId]/                     # API từng bài
+┃ ┃ ┃   ┣ bookmark/route.ts           # Toggle bookmark
+┃ ┃ ┃   ┣ comments/route.ts           # Gửi/comment vào post
+┃ ┃ ┃   ┗ likes/route.ts              # Like/unlike
+┃ ┃ ┣ search/route.ts                 # API tìm kiếm
+┃ ┃ ┣ uploadthing/
+┃ ┃ ┃ ┣ core.ts                       # Config uploadthing
+┃ ┃ ┃ ┗ route.ts                      # API upload
+┃ ┃ ┗ users/                          # API liên quan user
+┃ ┃   ┣ username/[username]/route.ts  # Lấy user theo username
+┃ ┃   ┗ [userId]/                     # Lấy dữ liệu user theo ID
+┃ ┃     ┣ followers/route.ts          # Lấy followers
+┃ ┃     ┗ posts/route.ts              # Lấy bài viết của user
+┃ ┣ favicon.ico
+┃ ┣ globals.css                        # CSS toàn hệ thống
+┃ ┣ layout.tsx                         # Root layout
+┃ ┗ ReactQueryProvider.tsx             # Provider react-query
+┣ assets/
+┃ ┣ avatar_placeholder.jpg            # Ảnh placeholder avatar
+┃ ┣ logo.jpg                          # Logo
+┃ ┣ post1.jpg                         # Ảnh mock post
+┃ ┗ post2.jpg
+┣ components/                         # Component tách riêng dùng nhiều nơi
+┃ ┣ comments/                         # Module comment
+┃ ┃ ┣ action.ts                       # Server actions comment
+┃ ┃ ┣ Comment.tsx                     # Một comment
+┃ ┃ ┣ CommentInput.tsx                # Input comment
+┃ ┃ ┣ CommentMoreButton.tsx           # Menu thêm/xóa comment
+┃ ┃ ┣ Comments.tsx                    # Danh sách comment
+┃ ┃ ┣ DeleteCommentDialog.tsx         # Dialog xóa comment
+┃ ┃ ┗ mutations.ts                    # React-query mutation cho comment
+┃ ┣ posts/                            # Module post
+┃ ┃ ┣ editor/
+┃ ┃ ┃ ┣ action.ts                     # Server actions cho editor
+┃ ┃ ┃ ┣ mutations.ts                  # Mutation editor
+┃ ┃ ┃ ┣ PostEditor.tsx                # Editor viết bài
+┃ ┃ ┃ ┣ style.css                     # CSS cho editor
+┃ ┃ ┃ ┗ useMediaUpload.tsx            # Hook upload ảnh/video
+┃ ┃ ┣ actions.ts                      # Server action cho post
+┃ ┃ ┣ BookmarkButton.tsx              # Nút bookmark
+┃ ┃ ┣ DeletePostDialog.tsx            # Dialog xóa post
+┃ ┃ ┣ LikeButton.tsx                  # Nút like
+┃ ┃ ┣ mutations.ts                    # Mutation post
+┃ ┃ ┣ Post.tsx                        # Component hiển thị một post
+┃ ┃ ┣ PostMoreButton.tsx              # More option của post
+┃ ┃ ┗ PostsLoadingSkeleton.tsx        # Skeleton load post
+┃ ┣ ui/                               # Các component UI (shadcn)
+┃ ┃ ┣ button.tsx
+┃ ┃ ┣ dialog.tsx
+┃ ┃ ┣ dropdown-menu.tsx
+┃ ┃ ┣ form.tsx
+┃ ┃ ┣ input.tsx
+┃ ┃ ┣ label.tsx
+┃ ┃ ┣ skeleton.tsx
+┃ ┃ ┣ tabs.tsx
+┃ ┃ ┣ textarea.tsx
+┃ ┃ ┣ toast.tsx
+┃ ┃ ┣ tooltip.tsx
+┃ ┃ ┗ use-toast.ts
+┃ ┣ AdminUserControls.tsx             # UI điều khiển admin
+┃ ┣ AdminUserControlsWrapper.tsx      # Logic wrapper cho admin
+┃ ┣ CropImageDialog.tsx               # Dialog crop ảnh
+┃ ┣ FollowButton.tsx                  # Nút follow
+┃ ┣ FollowerCount.tsx                 # Hiển thị số follower
+┃ ┣ InfiniteScrollContainer.tsx       # Container scroll vô hạn
+┃ ┣ Linkify.tsx                       # Tự động convert URL thành link
+┃ ┣ LoadingButton.tsx                 # Button loading
+┃ ┣ PasswordInput.tsx                 # Input password hiển thị/ẩn
+┃ ┣ SearchFiled.tsx                   # Ô tìm kiếm
+┃ ┣ TrendsSidebar.tsx                 # Sidebar xu hướng
+┃ ┣ UserAvatar.tsx                    # Avatar người dùng
+┃ ┣ UserButton.tsx                    # Nút mở menu user
+┃ ┣ UserLinkWithTooltip.tsx           # Link user + tooltip
+┃ ┗ UserTooltip.tsx                   # Tooltip user chi tiết
+┣ hooks/
+┃ ┣ useDebounce.ts                    # Hook debounce
+┃ ┗ useFollowerInfo.ts                # Hook lấy thông tin follower theo user
+┣ lib/
+┃ ┣ ky.ts                             # Khởi tạo HTTP client ky
+┃ ┣ prisma.ts                         # Kết nối Prisma ORM
+┃ ┣ server-auth.ts                    # Auth server-side (NextAuth)
+┃ ┣ stream.ts                         # Config Stream chat API
+┃ ┣ types.ts                          # Định nghĩa các kiểu dùng chung
+┃ ┣ uploadthing.ts                    # Hàm gọi uploadthing
+┃ ┣ utils.ts                          # Hàm tiện ích chung
+┃ ┗ validation.ts                     # Schema validation (Zod)
+┗ auth.ts                              # Config NextAuth (root)
+
+```
